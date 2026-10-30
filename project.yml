@@ -1,0 +1,76 @@
+name: Syncloom
+options:
+  bundleIdPrefix: world.syncloom
+  deploymentTarget: { macOS: "14.0" }
+  createIntermediateGroups: true
+packages:
+  SyncloomKit:
+    path: ../syncloom-apple
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_HARDENED_RUNTIME: YES
+targets:
+  Syncloom:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: SyncloomKit
+      - target: SyncloomFileProvider
+        embed: true
+    entitlements:
+      path: App/Syncloom.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.files.user-selected.read-write: true
+        com.apple.security.application-groups: ["$(TeamIdentifierPrefix)world.syncloom"]
+        keychain-access-groups: ["$(AppIdentifierPrefix)world.syncloom.shared"]
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Syncloom
+        LSApplicationCategoryType: public.app-category.productivity
+        LSMinimumSystemVersion: "14.0"
+        SyncloomKeychainGroup: "$(AppIdentifierPrefix)world.syncloom.shared"
+        NSHumanReadableCopyright: "© 2026 Syncloom Labs"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: world.syncloom.mac
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: NO
+  SyncloomFileProvider:
+    type: app-extension
+    platform: macOS
+    sources: [FileProvider]
+    dependencies:
+      - package: SyncloomKit
+    entitlements:
+      path: FileProvider/SyncloomFileProvider.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.application-groups: ["$(TeamIdentifierPrefix)world.syncloom"]
+        keychain-access-groups: ["$(AppIdentifierPrefix)world.syncloom.shared"]
+    info:
+      path: FileProvider/Info.plist
+      properties:
+        CFBundleDisplayName: Syncloom
+        SyncloomKeychainGroup: "$(AppIdentifierPrefix)world.syncloom.shared"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.fileprovider-nonui
+          NSExtensionPrincipalClass: "$(PRODUCT_MODULE_NAME).FileProviderExtension"
+          NSExtensionFileProviderDocumentGroup: "$(TeamIdentifierPrefix)world.syncloom"
+          NSExtensionFileProviderSupportsEnumeration: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: world.syncloom.mac.fileprovider
+        GENERATE_INFOPLIST_FILE: NO
+schemes:
+  Syncloom:
+    build:
+      targets: { Syncloom: all }
+    run: { config: Debug }
