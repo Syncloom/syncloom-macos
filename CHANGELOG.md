@@ -6,6 +6,7 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Added
 - Dropping or uploading whole folders (recursively, merged into same-named folders).
+- Names with characters Windows does not allow (such as `:`) are renamed with `_` on upload and listed in a dialog.
 
 ### Fixed
 - The storage meter in the sidebar follows server changes instead of showing "Zero KB used" until the next sign-in.
