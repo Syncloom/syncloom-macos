@@ -25,7 +25,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>© 2026 Syncloom Labs</string>
+	<string>© 2026 Sven Walther</string>
 	<key>SyncloomKeychainGroup</key>
 	<string>$(AppIdentifierPrefix)world.syncloom.shared</string>
 </dict>

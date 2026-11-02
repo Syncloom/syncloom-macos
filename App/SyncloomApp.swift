@@ -1,16 +1,33 @@
 import SwiftUI
 import SyncloomKit
 
+/// Owns the signed-in state for the whole life of the app, not of a window: closing the window must not stop
+/// the live connection that keeps Finder current.
+@MainActor
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    let model = AppModel()
+
+    func applicationDidFinishLaunching(_ n: Notification) {
+        Task { await model.restore() }
+        // started by macOS at login: stay in the menu bar without opening a window
+        if LaunchAtLogin.launchedAtLogin { DispatchQueue.main.async { NSApp.windows.filter(\.canBecomeMain).forEach { $0.close() } } }
+    }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ app: NSApplication) -> Bool { false }
+}
+
 @main
 struct SyncloomApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
+
     init() {
         // the app and its File Provider extension share the signed-in session through this Keychain group
         Credentials.accessGroup = Bundle.main.object(forInfoDictionaryKey: "SyncloomKeychainGroup") as? String
     }
 
     var body: some Scene {
-        WindowGroup("Syncloom") {
-            RootView(device: Host.current().localizedName ?? "Mac")
+        WindowGroup("Syncloom", id: "Syncloom") {
+            RootView(device: Host.current().localizedName ?? "Mac", model: delegate.model)
                 .frame(minWidth: 860, minHeight: 560)
         }
         .defaultSize(width: 1040, height: 680)
